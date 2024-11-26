@@ -10,6 +10,9 @@ let ship,
   consecutiveDestroys,
   gameEnded
 const restartButton = document.getElementById('restartButton')
+const leftButton = document.getElementById('leftButton')
+const rightButton = document.getElementById('rightButton')
+const fireButton = document.getElementById('fireButton')
 
 // Функция для определения правильного склонения
 function getShipDeclension(count) {
@@ -26,7 +29,12 @@ function getShipDeclension(count) {
 }
 
 function initializeGame() {
-  ship = { x: 275, y: 550, width: 50, height: 10 }
+  ship = {
+    x: canvas.width / 2 - 25,
+    y: canvas.height - 50,
+    width: 50,
+    height: 10,
+  }
   torpedo = null
   target = null
   sunkenTarget = null
@@ -50,8 +58,12 @@ function initTarget() {
   }
 }
 
-canvas.width = 600
-canvas.height = 600
+function onResize() {
+  const maxWidth = document.body.clientWidth
+  canvas.width = maxWidth < 600 ? maxWidth : 600
+  canvas.height = canvas.width
+  initializeGame()
+}
 
 function update() {
   if (gameEnded) return
@@ -183,6 +195,26 @@ restartButton.addEventListener('click', () => {
   gameLoop()
 })
 
+// Обработчики для кнопок управления
+leftButton.addEventListener('click', () => {
+  if (!gameEnded && ship.x > 0) {
+    ship.x -= 10
+  }
+})
+
+rightButton.addEventListener('click', () => {
+  if (!gameEnded && ship.x < canvas.width - ship.width) {
+    ship.x += 10
+  }
+})
+
+fireButton.addEventListener('click', () => {
+  if (!gameEnded && !torpedo && torpedoesLeft > 0) {
+    torpedo = { x: ship.x + ship.width / 2 - 2.5, y: ship.y }
+    torpedoesLeft--
+  }
+})
+
 window.addEventListener('keydown', (e) => {
   if (gameEnded) return
 
@@ -198,5 +230,6 @@ window.addEventListener('keydown', (e) => {
   }
 })
 
-initializeGame()
+window.addEventListener('resize', onResize)
+onResize()
 gameLoop()
